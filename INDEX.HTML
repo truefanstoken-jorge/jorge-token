@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$JORGE - First Meme Coin on ClashPad | Earn Passive $SOL Rewards</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jorgeRed: '#E53935',
+                        jorgeYellow: '#FFC72C',
+                        jorgeGreen: '#2E7D32',
+                        solanaCyan: '#00FFA3',
+                        solanaPurple: '#9945FF',
+                        btcGold: '#F7931A',
+                        desertSand: '#E3A857',
+                        desertDune: '#C87D32',
+                        desertDark: '#120B18',
+                        desertSkyTop: '#1B0C28',
+                        desertSkyBottom: '#E65100'
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        pixel: ['"Press Start 2P"', 'cursive']
+                    },
+                    animation: {
+                        'float': 'float 3.5s ease-in-out infinite',
+                        'bounce-short': 'bounce 0.8s ease-in-out 2',
+                        'spin-slow': 'spin 20s linear infinite',
+                        'pulse-glow': 'pulseGlow 2.5s infinite',
+                        'tumbleweed': 'tumbleweed 14s linear infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-12px) rotate(1.5deg)' }
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(0, 255, 163, 0.4), 0 0 40px rgba(229, 57, 53, 0.3)' },
+                            '50%': { boxShadow: '0 0 35px rgba(0, 255, 163, 0.8), 0 0 60px rgba(255, 199, 44, 0.6)' }
+                        },
+                        tumbleweed: {
+                            '0%': { transform: 'translateX(-100px) rotate(0deg)' },
+                            '100%': { transform: 'translateX(110vw) rotate(1440deg)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: linear-gradient(180deg, #120B18 0%, #2A102A 35%, #511A29 65%, #7A281B 100%);
+            color: #f3f4f6;
+            overflow-x: hidden;
+            border: 12px solid transparent;
+            border-image: repeating-linear-gradient(45deg, #E53935, #E53935 20px, #FFFFFF 20px, #FFFFFF 40px) 20;
+        }
+
+        .pfp-frame {
+            border: 8px solid transparent;
+            border-image: repeating-linear-gradient(45deg, #E53935, #E53935 15px, #FFFFFF 15px, #FFFFFF 30px) 15;
+            background-color: #FFFFFF;
+        }
+
+        .glass-desert {
+            background: rgba(26, 15, 30, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 199, 44, 0.3);
+        }
+
+        .glass-desert-glow {
+            background: rgba(38, 18, 42, 0.92);
+            backdrop-filter: blur(16px);
+            border: 2px solid #00FFA3;
+            box-shadow: 0 0 30px rgba(0, 255, 163, 0.25);
+        }
+
+        /* Perspective Flip Cards */
+        .flip-card {
+            perspective: 1000px;
+        }
+        .flip-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card:hover .flip-card-inner, .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #120B18;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00FFA3;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FFC72C;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-solanaCyan selection:text-desertDark">
+
+    <script>
+        let audioCtx = null;
+        let soundMuted = false;
+        let mariachiLoop = null;
+        let isPlayingMariachi = false;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (soundMuted) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'coin') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(987.77, now); // B5
+                osc.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'catch') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.15);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } else if (type === 'hit') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.25);
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'pump') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(260, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.3);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        function toggleMariachiMusic() {
+            initAudio();
+            if (!audioCtx) return;
+
+            const musicBtn = document.getElementById('musicToggleBtn');
+
+            if (isPlayingMariachi) {
+                clearInterval(mariachiLoop);
+                isPlayingMariachi = false;
+                musicBtn.classList.remove('bg-solanaCyan', 'text-desertDark');
+                musicBtn.classList.add('glass-desert', 'text-solanaCyan');
+                musicBtn.innerHTML = '<i class="fa-solid fa-music"></i> <span class="text-xs ml-1 hidden sm:inline">Desert Fiesta</span>';
+            } else {
+                isPlayingMariachi = true;
+                musicBtn.classList.remove('glass-desert', 'text-solanaCyan');
+                musicBtn.classList.add('bg-solanaCyan', 'text-desertDark', 'font-bold');
+                musicBtn.innerHTML = '<i class="fa-solid fa-compact-disc animate-spin"></i> <span class="text-xs ml-1 hidden sm:inline">$SOL Fiesta!</span>';
+
+                let step = 0;
+                const notes = [293.66, 369.99, 440.00, 587.33, 440.00, 369.99, 329.63, 293.66];
+                
+                mariachiLoop = setInterval(() => {
+                    if (soundMuted) return;
+                    const now = audioCtx.currentTime;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(notes[step % notes.length], now);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.18);
+                    step++;
+                }, 210);
+            }
+        }
+
+        function toggleSound() {
+            soundMuted = !soundMuted;
+            const btn = document.getElementById('soundToggleBtn');
+            if (soundMuted) {
+                btn.innerHTML = '<i class="fa-solid fa-volume-xmark text-red-500"></i>';
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-volume-high text-solanaCyan"></i>';
+                playSound('click');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotification');
+            const toastText = document.getElementById('toastText');
+            toastText.innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+
+    <!-- Toast Notification Banner -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="glass-desert-glow px-5 py-3 rounded-2xl border-2 border-solanaCyan text-white flex items-center space-x-3 shadow-2xl">
+            <span class="text-2xl">⚡</span>
+            <span id="toastText" class="font-bold text-sm text-solanaCyan">Contract Address Copied!</span>
+        </div>
+    </div>
+
+    <header class="fixed top-0 left-0 right-0 z-50 glass-desert border-b-2 border-solanaCyan/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- Logo with Jorge Avatar -->
+            <a href="#" onclick="playSound('click')" class="flex items-center space-x-3 group">
+                <div class="w-12 h-12 rounded-full pfp-frame p-[2px] shadow-[0_0_15px_rgba(0,255,163,0.6)] group-hover:scale-105 transition duration-300 flex items-center justify-center overflow-hidden">
+                    <svg class="w-full h-full" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="70" y1="200" x2="440" y2="330" stroke="#6D4C41" stroke-width="18" stroke-linecap="round"/>
+                        <path d="M 50 200 Q 30 270 80 370 Q 170 390 190 310 Q 170 220 100 190 Z" fill="#D7CCC8" stroke="#3E2723" stroke-width="5"/>
+                        <circle cx="125" cy="240" r="28" fill="#14F195" stroke="#3E2723" stroke-width="4"/>
+                        <circle cx="275" cy="220" r="75" fill="#E09A74" stroke="#3E2723" stroke-width="5"/>
+                        <circle cx="245" cy="195" r="23" fill="#FFF" stroke="#111" stroke-width="5"/>
+                        <circle cx="245" cy="195" r="7" fill="#111"/>
+                        <circle cx="305" cy="195" r="23" fill="#FFF" stroke="#111" stroke-width="5"/>
+                        <circle cx="305" cy="195" r="7" fill="#111"/>
+                        <path d="M 225 242 Q 275 210 325 242 Q 275 262 225 242 Z" fill="#111111"/>
+                        <path d="M 195 125 C 195 50 355 50 355 125 Z" fill="#FFC72C" stroke="#3E2723" stroke-width="5"/>
+                        <path d="M 90 160 Q 275 100 460 160 Q 275 190 90 160 Z" fill="#2E7D32" stroke="#3E2723" stroke-width="5"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="font-black text-2xl tracking-wider bg-gradient-to-r from-solanaCyan via-jorgeYellow to-jorgeRed bg-clip-text text-transparent">
+                        $JORGE
+                    </span>
+                    <span class="block text-[10px] font-bold text-solanaCyan uppercase tracking-widest -mt-1">
+                        ClashPad #1 • Earn $SOL
+                    </span>
+                </div>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center space-x-6 font-bold text-sm text-gray-200">
+                <a href="#hero" onclick="playSound('click')" class="hover:text-solanaCyan transition">ClashPad Oasis</a>
+                <a href="#sol-rewards" onclick="playSound('click')" class="hover:text-solanaCyan text-solanaCyan transition flex items-center space-x-1">
+                    <span>⚡ $SOL Rewards</span>
+                    <span class="bg-solanaCyan/20 text-solanaCyan text-[10px] px-2 py-0.5 rounded-full border border-solanaCyan">5% Auto</span>
+                </a>
+                <a href="#calculator" onclick="playSound('click')" class="hover:text-solanaCyan transition">Yield Estimator</a>
+                <a href="#minigame" onclick="playSound('click')" class="hover:text-solanaCyan transition flex items-center space-x-1">
+                    <span>Desert Catch Game</span>
+                    <span class="bg-jorgeRed text-white text-[10px] px-2 py-0.5 rounded-full font-pixel animate-bounce">PLAY</span>
+                </a>
+                <a href="#tokenomics" onclick="playSound('click')" class="hover:text-solanaCyan transition">Taco-Nomics</a>
+                <a href="#roadmap" onclick="playSound('click')" class="hover:text-solanaCyan transition">Roadmap</a>
+            </nav>
+
+            <!-- Sound & Music Controls -->
+            <div class="flex items-center space-x-3">
+                <button id="musicToggleBtn" onclick="toggleMariachiMusic()" class="px-3 py-2 rounded-xl glass-desert text-solanaCyan hover:border-solanaCyan transition flex items-center space-x-1 text-sm">
+                    <i class="fa-solid fa-music"></i>
+                    <span class="text-xs hidden sm:inline">Desert Fiesta</span>
+                </button>
+
+                <button id="soundToggleBtn" onclick="toggleSound()" class="p-2.5 rounded-xl glass-desert text-solanaCyan hover:border-solanaCyan transition text-base" title="Toggle Sound FX">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+
+                <a href="https://clashpad.fun/coin.html?c=jorge" target="_blank" onclick="playSound('pump'); triggerHeroConfetti()" class="hidden lg:inline-flex items-center justify-center px-5 py-2.5 rounded-xl font-black text-sm text-desertDark bg-gradient-to-r from-solanaCyan via-amber-300 to-jorgeYellow hover:scale-105 transition shadow-[0_0_20px_rgba(0,255,163,0.5)]">
+                    BUY $JORGE ⚡
+                </a>
+
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg text-gray-300 hover:text-white">
+                    <i class="fa-solid fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden glass-desert border-t border-gray-800 px-6 py-4 space-y-3 font-semibold">
+            <a href="#hero" onclick="toggleMobileMenu()" class="block text-gray-300 hover:text-solanaCyan py-1">ClashPad Oasis</a>
+            <a href="#sol-rewards" onclick="toggleMobileMenu()" class="block text-solanaCyan font-bold py-1">⚡ $SOL Reflection Rewards (5%)</a>
+            <a href="#calculator" onclick="toggleMobileMenu()" class="block text-gray-300 hover:text-solanaCyan py-1">Yield Estimator</a>
+            <a href="#minigame" onclick="toggleMobileMenu()" class="block text-jorgeYellow font-bold py-1">Desert Catch Arcade 🎮</a>
+            <a href="#tokenomics" onclick="toggleMobileMenu()" class="block text-gray-300 hover:text-solanaCyan py-1">Taco-Nomics</a>
+            <a href="#roadmap" onclick="toggleMobileMenu()" class="block text-gray-300 hover:text-solanaCyan py-1">Roadmap</a>
+            <a href="https://clashpad.fun/coin.html?c=jorge" target="_blank" class="block text-center py-2 rounded-xl font-black text-desertDark bg-solanaCyan mt-2">BUY $JORGE ⚡</a>
+        </div>
+    </header>
+
+    <section id="hero" class="relative pt-32 pb-24 md:pt-40 md:pb-36 overflow-hidden min-h-screen flex flex-col justify-between">
+        
+        <!-- Canvas Background Particles & Stars -->
+        <canvas id="heroCanvas" class="absolute inset-0 z-0 pointer-events-none"></canvas>
+
+        <!-- Desert Sun Glow Backdrop -->
+        <div class="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-solanaCyan/25 via-jorgeYellow/20 to-solanaPurple/30 rounded-full filter blur-[120px] pointer-events-none"></div>
+
+        <!-- Animated Rolling Crypto Tumbleweed -->
+        <div class="absolute bottom-12 z-10 animate-tumbleweed pointer-events-none opacity-80">
+            <div class="w-16 h-16 rounded-full border-4 border-dashed border-solanaCyan bg-desertDune/30 flex items-center justify-center text-xs font-black text-solanaCyan shadow-lg">
+                ⚡ $SOL
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 my-auto">
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Left Text Column -->
+                <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
+                    
+                    <!-- Rewards Banner Badge -->
+                    <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-desert-glow border-2 border-solanaCyan animate-pulse">
+                        <span class="text-xl">⚡</span>
+                        <span class="text-xs sm:text-sm font-black text-solanaCyan tracking-wide uppercase">
+                            HOLD $JORGE • AUTOMATICALLY EARN $SOL REWARDS!
+                        </span>
+                    </div>
+
+                    <!-- Main Headline -->
+                    <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-none">
+                        <span class="block text-white">THE PIONEER MEME COIN ON</span>
+                        <span class="bg-gradient-to-r from-solanaCyan via-jorgeYellow to-jorgeRed bg-clip-text text-transparent filter drop-shadow-[0_0_20px_rgba(0,255,163,0.5)]">
+                            CLASHPAD HAS ARRIVED!
+                        </span>
+                    </h1>
+
+                    <p class="text-gray-200 text-lg sm:text-xl max-w-2xl font-light leading-relaxed">
+                        Hold <strong class="text-jorgeYellow font-bold">$JORGE</strong> in your wallet and watch <strong class="text-solanaCyan font-bold">Solana ($SOL)</strong> drop automatically into your wallet from every buy and sell! Jorge carries the $SOL wealth in his CLASH bindle! 🇲🇽⚡
+                    </p>
+
+                    <!-- CTAs -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                        <a href="https://clashpad.fun/coin.html?c=jorge" target="_blank" onclick="playSound('pump'); triggerHeroConfetti()" class="w-full sm:w-auto px-8 py-4 rounded-2xl font-black text-lg text-desertDark bg-gradient-to-r from-solanaCyan via-amber-300 to-jorgeYellow hover:scale-105 transition duration-300 text-center flex items-center justify-center space-x-3 shadow-[0_0_30px_rgba(0,255,163,0.6)]">
+                            <span class="text-2xl">⚡</span>
+                            <span>BUY $JORGE ON CLASHPAD</span>
+                        </a>
+
+                        <a href="#sol-rewards" onclick="playSound('click')" class="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg text-white glass-desert hover:border-solanaCyan hover:shadow-[0_0_20px_rgba(0,255,163,0.4)] transition duration-300 text-center flex items-center justify-center space-x-3">
+                            <i class="fa-solid fa-coins text-2xl text-solanaCyan"></i>
+                            <span>HOW $SOL REWARDS WORK</span>
+                        </a>
+                    </div>
+
+                    <!-- Contract Quick Copy Badge -->
+                    <div class="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start space-y-2 sm:space-y-0 sm:space-x-3 text-xs text-gray-300">
+                        <span class="font-bold uppercase tracking-wider text-solanaCyan">CONTRACT ADDRESS (CA):</span>
+                        <div onclick="copyContractAddress()" class="cursor-pointer glass-desert px-4 py-2 rounded-xl flex items-center space-x-3 border border-solanaCyan/40 hover:border-solanaCyan transition group">
+                            <span id="heroContractText" class="font-mono text-solanaCyan font-bold text-xs sm:text-sm truncate max-w-[220px] sm:max-w-none">CfHaAbdYqa9Ma6szr7f7kxpgZLsxjNVTcm8KQr1wd6Bh</span>
+                            <i class="fa-regular fa-copy text-gray-400 group-hover:text-white transition"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Artwork Column: Jorge Exact PFP Vector Representation -->
+                <div class="lg:col-span-5 flex justify-center relative">
+                    <div class="relative w-80 h-80 sm:w-96 sm:h-96 flex items-center justify-center">
+                        
+                        <!-- Glowing Sun Backdrop -->
+                        <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-jorgeRed via-solanaCyan to-jorgeYellow filter blur-3xl opacity-50 animate-pulse"></div>
+                        <div class="absolute -inset-4 rounded-full border-4 border-dashed border-solanaCyan/50 animate-spin-slow"></div>
+
+                        <!-- Jorge PFP Card Frame -->
+                        <div class="relative z-10 w-full h-full pfp-frame rounded-3xl p-3 flex items-center justify-center animate-float shadow-2xl">
+                            
+                            <!-- Detailed Vector Representation of $JORGE PFP Image -->
+                            <svg class="w-full h-full filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.85)]" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Red and White Striped Outer Frame -->
+                                <rect x="10" y="10" width="480" height="480" rx="18" stroke="#E53935" stroke-width="12" stroke-dasharray="24 24" fill="#FFFFFF"/>
+                                
+                                <!-- Wooden Bindle Stick -->
+                                <line x1="60" y1="210" x2="450" y2="335" stroke="#5D4037" stroke-width="20" stroke-linecap="round"/>
+                                
+                                <!-- Canvas Bindle Cloth Bag with CLASH Patch -->
+                                <path d="M 45 200 Q 25 280 80 375 Q 180 395 195 310 Q 175 220 95 190 Z" fill="#E0D7D5" stroke="#3E2723" stroke-width="6"/>
+                                <!-- Cloth Knot -->
+                                <path d="M 85 185 Q 110 160 130 190 Q 105 210 85 185 Z" fill="#D7CCC8" stroke="#3E2723" stroke-width="5"/>
+                                
+                                <!-- CLASH Stitch Patch -->
+                                <rect x="80" y="285" width="90" height="45" rx="6" fill="#FFF8E1" stroke="#3E2723" stroke-width="4"/>
+                                <text x="88" y="316" font-family="sans-serif" font-weight="900" font-size="22" fill="#E53935">CLASH</text>
+                                
+                                <!-- Bitcoin Coin in Bindle -->
+                                <circle cx="65" cy="255" r="32" fill="#F7931A" stroke="#3E2723" stroke-width="4"/>
+                                <text x="54" y="267" font-family="sans-serif" font-weight="900" font-size="34" fill="#FFF">₿</text>
+                                
+                                <!-- Solana Coin in Bindle -->
+                                <circle cx="128" cy="235" r="30" fill="#14F195" stroke="#3E2723" stroke-width="4"/>
+                                <path d="M 112 226 L 140 226 L 145 231 L 117 231 Z M 112 235 L 140 235 L 135 240 L 107 240 Z M 117 244 L 145 244 L 140 249 L 112 249 Z" fill="#000"/>
+
+                                <!-- Body: Red & White Horizontal Striped Shirt -->
+                                <path d="M 170 330 Q 250 295 380 330 L 415 500 L 145 500 Z" fill="#FFFFFF"/>
+                                <!-- Red Stripes -->
+                                <path d="M 165 365 Q 250 330 385 365 L 392 395 Q 250 360 158 395 Z" fill="#E53935"/>
+                                <path d="M 152 425 Q 250 390 398 425 L 405 455 Q 250 420 148 455 Z" fill="#E53935"/>
+                                <path d="M 145 480 L 415 480 L 415 500 L 145 500 Z" fill="#E53935"/>
+
+                                <!-- Hand Holding Bindle Stick -->
+                                <circle cx="375" cy="305" r="26" fill="#E09A74" stroke="#3E2723" stroke-width="5"/>
+
+                                <!-- Head & Ears -->
+                                <circle cx="275" cy="225" r="78" fill="#E09A74" stroke="#3E2723" stroke-width="6"/>
+                                <circle cx="195" cy="220" r="19" fill="#E09A74" stroke="#3E2723" stroke-width="5"/>
+                                <circle cx="355" cy="220" r="19" fill="#E09A74" stroke="#3E2723" stroke-width="5"/>
+
+                                <!-- Glasses & Round Eyes -->
+                                <circle cx="242" cy="198" r="24" fill="#FFF" stroke="#111" stroke-width="5"/>
+                                <circle cx="242" cy="198" r="7" fill="#111"/>
+                                <circle cx="308" cy="198" r="24" fill="#FFF" stroke="#111" stroke-width="5"/>
+                                <circle cx="308" cy="198" r="7" fill="#111"/>
+                                <line x1="266" y1="198" x2="284" y2="198" stroke="#111" stroke-width="5"/>
+
+                                <!-- Big Cheerful Smile & Teeth -->
+                                <path d="M 230 252 Q 275 288 320 252 Z" fill="#FFF" stroke="#111" stroke-width="4"/>
+
+                                <!-- Friendly Mustache -->
+                                <path d="M 220 244 Q 275 210 330 244 Q 275 266 220 244 Z" fill="#111111"/>
+
+                                <!-- Mexican Sombrero Hat -->
+                                <!-- Hat Dome -->
+                                <path d="M 190 128 C 190 45 360 45 360 128 Z" fill="#FFC72C" stroke="#3E2723" stroke-width="6"/>
+                                <!-- Colorful Band Patterns -->
+                                <path d="M 220 108 L 330 108" stroke="#E53935" stroke-width="10"/>
+                                <path d="M 235 82 L 315 82" stroke="#2E7D32" stroke-width="10"/>
+
+                                <!-- Sombrero Brim with Geometric Pattern Trim -->
+                                <path d="M 80 162 Q 275 95 470 162 Q 275 195 80 162 Z" fill="#2E7D32" stroke="#3E2723" stroke-width="6"/>
+                                <path d="M 100 160 Q 275 112 450 160" stroke="#FFC72C" stroke-width="8" stroke-dasharray="12 12"/>
+                            </svg>
+
+                            <span class="absolute -top-4 -right-4 bg-solanaCyan text-desertDark font-black text-xs px-3 py-1.5 rounded-full shadow-lg border border-white animate-bounce">
+                                ⚡ $SOL REWARDS ACTIVE
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Desert & $SOL Rewards Stats Grid -->
+            <div class="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div class="glass-desert p-5 rounded-2xl border-b-4 border-b-solanaCyan hover:border-solanaCyan transition">
+                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Total $SOL Rewards Sent</div>
+                    <div class="text-2xl sm:text-3xl font-black text-solanaCyan" id="liveSolRewards">3,842.5 SOL</div>
+                    <div class="text-[11px] text-solanaCyan mt-1 font-semibold">▲ Paid Auto to Holders</div>
+                </div>
+
+                <div class="glass-desert p-5 rounded-2xl border-b-4 border-b-jorgeYellow hover:border-jorgeYellow transition">
+                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Market Cap</div>
+                    <div class="text-2xl sm:text-3xl font-black text-jorgeYellow" id="liveMarketCap">$4,280,000</div>
+                    <div class="text-[11px] text-solanaCyan mt-1 font-semibold">▲ +100x Moon Target</div>
+                </div>
+
+                <div class="glass-desert p-5 rounded-2xl border-b-4 border-b-jorgeRed hover:border-jorgeRed transition">
+                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Jorge Holders</div>
+                    <div class="text-2xl sm:text-3xl font-black text-jorgeRed" id="liveHolders">18,942</div>
+                    <div class="text-[11px] text-gray-300 mt-1">ClashPad Desert Army</div>
+                </div>
+
+                <div class="glass-desert p-5 rounded-2xl border-b-4 border-b-btcGold hover:border-btcGold transition">
+                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">24h Volume</div>
+                    <div class="text-2xl sm:text-3xl font-black text-btcGold" id="liveVolume">$1,425,000</div>
+                    <div class="text-[11px] text-solanaCyan mt-1 font-semibold">⚡ 5% $SOL Tax Split</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Desert Sand Dune Silhouettes at Bottom of Hero -->
+        <div class="relative w-full overflow-hidden leading-none z-10 -mb-1 mt-12">
+            <svg class="relative block w-full h-20 text-desertDune" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0 C150,90 350,-40 500,50 C650,140 900,10 1200,40 L1200,120 L0,120 Z" fill="rgba(200, 125, 50, 0.5)"></path>
+                <path d="M0,30 C200,100 450,10 700,70 C950,130 1100,20 1200,60 L1200,120 L0,120 Z" fill="#C87D32"></path>
+            </svg>
+        </div>
+    </section>
+
+    <section id="sol-rewards" class="py-20 relative bg-desertDark/90 border-t-2 border-solanaCyan/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs font-black text-solanaCyan uppercase tracking-widest bg-solanaCyan/10 px-3 py-1 rounded-full border border-solanaCyan/30">PASSIVE SOLANA YIELD</span>
+                <h2 class="text-3xl sm:text-5xl font-black text-white mt-3">HOLD $JORGE • RECEIVE $SOL ⚡</h2>
+                <p class="text-gray-300 mt-4 text-base sm:text-lg">No claim buttons needed! 5% of every transaction on ClashPad is converted to pure Solana ($SOL) and deposited automatically into your wallet!</p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Reward Card 1 -->
+                <div class="glass-desert-glow p-8 rounded-3xl border-2 border-solanaCyan text-center space-y-4">
+                    <div class="w-16 h-16 rounded-full bg-solanaCyan/20 text-solanaCyan text-3xl mx-auto flex items-center justify-center border border-solanaCyan">
+                        ⚡
+                    </div>
+                    <h3 class="text-2xl font-black text-white">5% Auto $SOL Reflections</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">
+                        Every single trade (buy or sell) generates 5% $SOL rewards. The smart contract redistributes these $SOL rewards continuously to all $JORGE token holders based on their percentage share.
+                    </p>
+                </div>
+
+                <!-- Reward Card 2 -->
+                <div class="glass-desert-glow p-8 rounded-3xl border-2 border-jorgeYellow text-center space-y-4">
+                    <div class="w-16 h-16 rounded-full bg-jorgeYellow/20 text-jorgeYellow text-3xl mx-auto flex items-center justify-center border border-jorgeYellow">
+                        💼
+                    </div>
+                    <h3 class="text-2xl font-black text-white">Zero Claim Gas Fees</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">
+                        You don't need to waste SOL on manual claiming or gas fees. Your $SOL dividends are pushed straight into your Phantom or Solflare wallet automatically every 60 minutes!
+                    </p>
+                </div>
+
+                <!-- Reward Card 3 -->
+                <div class="glass-desert-glow p-8 rounded-3xl border-2 border-jorgeRed text-center space-y-4">
+                    <div class="w-16 h-16 rounded-full bg-jorgeRed/20 text-jorgeRed text-3xl mx-auto flex items-center justify-center border border-jorgeRed">
+                        🌮
+                    </div>
+                    <h3 class="text-2xl font-black text-white">ClashPad Desert Yields</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">
+                        As the pioneer token launched on ClashPad, $JORGE volume creates a continuous stream of passive Solana income while you sit back in the desert shade!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="calculator" class="py-20 relative">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass-desert-glow p-8 sm:p-12 rounded-3xl border-4 border-solanaCyan relative shadow-[0_0_50px_rgba(0,255,163,0.3)]">
+                
+                <div class="text-center max-w-2xl mx-auto mb-10">
+                    <span class="text-xs font-black text-desertDark bg-solanaCyan px-3 py-1 rounded-full uppercase">PASSIVE YIELD CALCULATOR</span>
+                    <h2 class="text-3xl sm:text-5xl font-black text-white mt-3">ESTIMATE YOUR $SOL REWARDS ⚡</h2>
+                    <p class="text-gray-300 text-sm sm:text-base mt-2">Adjust your $JORGE holdings and daily trading volume to estimate your passive Solana payouts!</p>
+                </div>
+
+                <div class="grid md:grid-cols-12 gap-8 items-center">
+                    
+                    <!-- Controls -->
+                    <div class="md:col-span-6 space-y-6">
+                        <div>
+                            <div class="flex justify-between font-bold text-sm mb-2">
+                                <span class="text-gray-300">Your $JORGE Holdings:</span>
+                                <span class="text-solanaCyan font-mono text-xl" id="calcHoldingsText">5,000,000 $JORGE</span>
+                            </div>
+                            <input type="range" id="calcHoldingsSlider" min="100000" max="50000000" step="100000" value="5000000" oninput="updateSolRewardsCalculator()" class="w-full h-4 bg-desertDark rounded-lg appearance-none cursor-pointer accent-solanaCyan">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between font-bold text-sm mb-2">
+                                <span class="text-gray-300">Est. ClashPad 24h Volume ($):</span>
+                                <span class="text-jorgeYellow font-mono text-xl" id="calcVolText">$2,000,000 USD</span>
+                            </div>
+                            <input type="range" id="calcVolSlider" min="100000" max="20000000" step="100000" value="2000000" oninput="updateSolRewardsCalculator()" class="w-full h-4 bg-desertDark rounded-lg appearance-none cursor-pointer accent-jorgeYellow">
+                        </div>
+
+                        <div class="bg-desertDark/90 p-5 rounded-2xl border border-gray-800 space-y-3">
+                            <div class="flex justify-between items-center border-b border-gray-800 pb-2 text-xs">
+                                <span class="text-gray-400">Your Share of Supply:</span>
+                                <span class="font-mono font-bold text-jorgeYellow text-base" id="calcSupplyShare">0.50%</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-gray-800 pb-2 text-xs">
+                                <span class="text-gray-400">Total $SOL Reward Pool (5%):</span>
+                                <span class="font-mono font-bold text-solanaCyan text-base" id="calcRewardPool">689.65 SOL / day</span>
+                            </div>
+                        </div>
+
+                        <button onclick="playSound('pump'); triggerHeroConfetti()" class="w-full py-4 rounded-2xl font-black text-desertDark bg-gradient-to-r from-solanaCyan via-amber-300 to-jorgeYellow hover:scale-105 transition shadow-lg text-center text-lg">
+                            <a href="https://clashpad.fun/coin.html?c=jorge" target="_blank">LOAD UP $JORGE & START EARNING ⚡</a>
+                        </button>
+                    </div>
+
+                    <!-- Estimated Rewards Result Display -->
+                    <div class="md:col-span-6 glass-desert p-6 rounded-2xl border-2 border-solanaCyan text-center space-y-4">
+                        <h3 class="font-black text-lg text-white">⚡ ESTIMATED $SOL PASSIVE PAYOUTS</h3>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-desertDark/80 p-4 rounded-2xl border border-solanaCyan/40">
+                                <div class="text-3xl">⚡</div>
+                                <div class="font-black text-solanaCyan text-2xl mt-1" id="boxDailySol">3.45 SOL</div>
+                                <div class="text-[11px] text-gray-400 uppercase font-bold">Estimated / Day</div>
+                                <div class="text-[10px] text-solanaCyan mt-1 font-mono" id="boxDailyUsd">~$500 USD</div>
+                            </div>
+
+                            <div class="bg-desertDark/80 p-4 rounded-2xl border border-jorgeYellow/40">
+                                <div class="text-3xl">💰</div>
+                                <div class="font-black text-jorgeYellow text-2xl mt-1" id="boxMonthlySol">103.50 SOL</div>
+                                <div class="text-[11px] text-gray-400 uppercase font-bold">Estimated / Month</div>
+                                <div class="text-[10px] text-jorgeYellow mt-1 font-mono" id="boxMonthlyUsd">~$15,000 USD</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-solanaCyan/10 p-3 rounded-xl border border-solanaCyan/40">
+                            <div class="text-xs text-gray-300 font-bold">Reward Tier:</div>
+                            <div class="text-sm font-black text-solanaCyan uppercase mt-0.5" id="rewardTierTitle">
+                                👑 EL PATRÓN DE $SOL
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="lore" class="py-20 relative bg-desertDark/90 border-t-2 border-jorgeYellow/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs font-black text-jorgeYellow uppercase tracking-widest bg-jorgeRed/20 px-3 py-1 rounded-full border border-jorgeRed">THE DESERT CHRONICLES</span>
+                <h2 class="text-3xl sm:text-5xl font-black text-white mt-3">THE LEGEND OF JORGE</h2>
+                <p class="text-gray-300 mt-4 text-base sm:text-lg">Click or hover over the flip cards to discover Jorge's journey across ClashPad!</p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-6">
+                <!-- Story 1 -->
+                <div class="flip-card h-80 cursor-pointer" onclick="this.classList.toggle('flipped'); playSound('click')">
+                    <div class="flip-card-inner relative w-full h-full rounded-3xl">
+                        <div class="flip-card-front absolute inset-0 glass-desert p-6 rounded-3xl flex flex-col justify-between border-2 border-jorgeYellow">
+                            <div>
+                                <span class="text-5xl">💼</span>
+                                <span class="block text-xs text-jorgeYellow font-bold uppercase mt-4">Chapter I</span>
+                                <h3 class="text-2xl font-black text-white mt-1">Leaving Wall Street</h3>
+                            </div>
+                            <p class="text-xs text-gray-400 flex items-center justify-between">
+                                <span>Click to flip</span>
+                                <i class="fa-solid fa-rotate text-jorgeYellow"></i>
+                            </p>
+                        </div>
+                        <div class="flip-card-back absolute inset-0 glass-desert-glow p-6 rounded-3xl flex flex-col justify-center border-2 border-jorgeYellow text-center">
+                            <h4 class="text-lg font-bold text-jorgeYellow mb-2">The Escape</h4>
+                            <p class="text-xs text-gray-200 leading-relaxed">
+                                Tired of zero-yield corporate suits, Jorge put on his iconic striped shirt, grabbed his wooden stick bindle, and marched into the wild crypto desert!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Story 2 -->
+                <div class="flip-card h-80 cursor-pointer" onclick="this.classList.toggle('flipped'); playSound('click')">
+                    <div class="flip-card-inner relative w-full h-full rounded-3xl">
+                        <div class="flip-card-front absolute inset-0 glass-desert p-6 rounded-3xl flex flex-col justify-between border-2 border-solanaCyan">
+                            <div>
+                                <span class="text-5xl">🎒</span>
+                                <span class="block text-xs text-solanaCyan font-bold uppercase mt-4">Chapter II</span>
+                                <h3 class="text-2xl font-black text-white mt-1">Packing the 'CLASH' Bag</h3>
+                            </div>
+                            <p class="text-xs text-gray-400 flex items-center justify-between">
+                                <span>Click to flip</span>
+                                <i class="fa-solid fa-rotate text-solanaCyan"></i>
+                            </p>
+                        </div>
+                        <div class="flip-card-back absolute inset-0 glass-desert-glow p-6 rounded-3xl flex flex-col justify-center border-2 border-solanaCyan text-center">
+                            <h4 class="text-lg font-bold text-solanaCyan mb-2">Solana & Bitcoin</h4>
+                            <p class="text-xs text-gray-200 leading-relaxed">
+                                He stuffed his bindle stamped "CLASH" with pure Solana gems, Bitcoins, and spicy tacos to keep his strength up across the scorching dunes.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Story 3 -->
+                <div class="flip-card h-80 cursor-pointer" onclick="this.classList.toggle('flipped'); playSound('click')">
+                    <div class="flip-card-inner relative w-full h-full rounded-3xl">
+                        <div class="flip-card-front absolute inset-0 glass-desert p-6 rounded-3xl flex flex-col justify-between border-2 border-jorgeRed">
+                            <div>
+                                <span class="text-5xl">🌵</span>
+                                <span class="block text-xs text-jorgeRed font-bold uppercase mt-4">Chapter III</span>
+                                <h3 class="text-2xl font-black text-white mt-1">ClashPad Pioneer</h3>
+                            </div>
+                            <p class="text-xs text-gray-400 flex items-center justify-between">
+                                <span>Click to flip</span>
+                                <i class="fa-solid fa-rotate text-jorgeRed"></i>
+                            </p>
+                        </div>
+                        <div class="flip-card-back absolute inset-0 glass-desert-glow p-6 rounded-3xl flex flex-col justify-center border-2 border-jorgeRed text-center">
+                            <h4 class="text-lg font-bold text-jorgeRed mb-2">The First Launch</h4>
+                            <p class="text-xs text-gray-200 leading-relaxed">
+                                Jorge launched as the pioneer token on ClashPad, introducing automated 5% $SOL reflection rewards to all loyal community holders!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Story 4 -->
+                <div class="flip-card h-80 cursor-pointer" onclick="this.classList.toggle('flipped'); playSound('click')">
+                    <div class="flip-card-inner relative w-full h-full rounded-3xl">
+                        <div class="flip-card-front absolute inset-0 glass-desert p-6 rounded-3xl flex flex-col justify-between border-2 border-btcGold">
+                            <div>
+                                <span class="text-5xl">⚡</span>
+                                <span class="block text-xs text-btcGold font-bold uppercase mt-4">Chapter IV</span>
+                                <h3 class="text-2xl font-black text-white mt-1">The $SOL Oasis</h3>
+                            </div>
+                            <p class="text-xs text-gray-400 flex items-center justify-between">
+                                <span>Click to flip</span>
+                                <i class="fa-solid fa-rotate text-btcGold"></i>
+                            </p>
+                        </div>
+                        <div class="flip-card-back absolute inset-0 glass-desert-glow p-6 rounded-3xl flex flex-col justify-center border-2 border-btcGold text-center">
+                            <h4 class="text-lg font-bold text-btcGold mb-2">Shared Yields</h4>
+                            <p class="text-xs text-gray-200 leading-relaxed">
+                                Now Jorge invites all crypto wanderers to join his desert oasis fiesta. Hold $JORGE, enjoy passive $SOL dividends, and march to $100M market cap!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="minigame" class="py-20 relative bg-desertDark border-t-2 border-solanaCyan/30">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <span class="font-pixel text-xs bg-jorgeRed text-white px-3 py-1 rounded-full uppercase">DESERT CLASH ARCADE</span>
+                <h2 class="text-3xl sm:text-5xl font-black text-white mt-3">JORGE'S $SOL CATCH! 🎮</h2>
+                <p class="text-gray-300 text-sm sm:text-base mt-2">Catch falling Solana coins and $JORGE badges in Jorge's CLASH bindle while dodging bear market traps! 🐻</p>
+            </div>
+
+            <!-- Arcade Cabinet Box with Red/White Candy Border -->
+            <div class="glass-desert-glow rounded-3xl p-6 border-4 border-jorgeRed relative shadow-[0_0_50px_rgba(229,57,53,0.4)]">
+                
+                <!-- Game Score & Status Bar -->
+                <div class="flex justify-between items-center border-b border-gray-800 pb-4 mb-4">
+                    <div>
+                        <div class="text-xs text-gray-400 uppercase font-semibold">$SOL Points</div>
+                        <div id="gameScoreText" class="font-pixel text-2xl text-solanaCyan">0 PTS</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-400 uppercase font-semibold text-right">High Score</div>
+                        <div id="gameHighScoreText" class="font-pixel text-lg text-jorgeYellow">0 PTS</div>
+                    </div>
+                    <div>
+                        <button onclick="resetClashGame()" class="px-4 py-2 rounded-xl font-bold text-xs bg-jorgeRed text-white hover:bg-red-600 transition">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> Restart Game
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interactive Game Arena -->
+                <div class="relative h-80 sm:h-96 bg-gradient-to-b from-desertDark via-purple-950/60 to-desertDune/40 rounded-2xl border-2 border-gray-800 overflow-hidden cursor-crosshair" id="gameArea">
+                    
+                    <!-- Jorge Character Bindle Player Sprite -->
+                    <div id="gamePlayer" class="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-20 transition-all duration-75 select-none pointer-events-none">
+                        <svg class="w-full h-full filter drop-shadow-md" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <line x1="60" y1="210" x2="450" y2="335" stroke="#5D4037" stroke-width="22" stroke-linecap="round"/>
+                            <path d="M 45 200 Q 25 280 80 375 Q 180 395 195 310 Q 175 220 95 190 Z" fill="#E0D7D5" stroke="#3E2723" stroke-width="6"/>
+                            <rect x="80" y="285" width="90" height="45" rx="6" fill="#FFF8E1" stroke="#3E2723" stroke-width="4"/>
+                            <text x="88" y="316" font-family="sans-serif" font-weight="900" font-size="22" fill="#E53935">CLASH</text>
+                            <circle cx="128" cy="235" r="30" fill="#14F195" stroke="#3E2723" stroke-width="4"/>
+                            <path d="M 170 330 Q 250 295 380 330 L 415 500 L 145 500 Z" fill="#FFFFFF"/>
+                            <path d="M 165 365 Q 250 330 385 365 L 392 395 Q 250 360 158 395 Z" fill="#E53935"/>
+                            <circle cx="275" cy="225" r="78" fill="#E09A74" stroke="#3E2723" stroke-width="6"/>
+                            <circle cx="242" cy="198" r="24" fill="#FFF" stroke="#111" stroke-width="5"/>
+                            <circle cx="242" cy="198" r="7" fill="#111"/>
+                            <circle cx="308" cy="198" r="24" fill="#FFF" stroke="#111" stroke-width="5"/>
+                            <circle cx="308" cy="198" r="7" fill="#111"/>
+                            <path d="M 220 244 Q 275 210 330 244 Q 275 266 220 244 Z" fill="#111111"/>
+                            <path d="M 190 128 C 190 45 360 45 360 128 Z" fill="#FFC72C" stroke="#3E2723" stroke-width="6"/>
+                            <path d="M 80 162 Q 275 95 470 162 Q 275 195 80 162 Z" fill="#2E7D32" stroke="#3E2723" stroke-width="6"/>
+                        </svg>
+                    </div>
+
+                    <!-- Game Over Modal -->
+                    <div id="gameOverModal" class="hidden absolute inset-0 bg-desertDark/95 backdrop-blur-md flex flex-col items-center justify-center text-center p-6 z-20">
+                        <div class="text-5xl mb-2">🐻💥</div>
+                        <h3 class="font-pixel text-xl text-jorgeRed mb-2">BEAR MARKET HIT!</h3>
+                        <p class="text-sm text-gray-300 mb-4">Final $SOL Catch Score: <span id="finalScoreText" class="text-solanaCyan font-bold">0</span> PTS</p>
+                        <button onclick="resetClashGame()" class="px-6 py-3 rounded-xl font-black text-desertDark bg-solanaCyan hover:bg-emerald-300 transition shadow-lg">
+                            TRY AGAIN 🚀
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Controls & Legend -->
+                <div class="mt-4 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-300">
+                    <span>💡 Move mouse / touch or use Arrow Keys to catch falling crypto!</span>
+                    <span class="text-solanaCyan font-bold mt-2 sm:mt-0">⚡ SOL +100 | 🟡 BTC +200 | 🌮 TACO +150 | 🐻 BEAR -END</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tokenomics" class="py-20 relative bg-desertDark/70 border-t-2 border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs font-black text-solanaCyan uppercase tracking-widest bg-solanaCyan/10 px-3 py-1 rounded-full border border-solanaCyan/30">100% FAIR LAUNCH</span>
+                <h2 class="text-3xl sm:text-5xl font-black text-white mt-3">TACO-NOMICS 🌮</h2>
+                <p class="text-gray-300 mt-4 text-base sm:text-lg">5% $SOL rewards, zero taxes for team, and locked liquidity on ClashPad.</p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="glass-desert p-6 rounded-3xl border-t-8 border-t-solanaCyan hover:scale-105 transition duration-300 text-center">
+                    <div class="text-5xl mb-3">⚡</div>
+                    <div class="text-2xl font-black text-solanaCyan">5% $SOL</div>
+                    <h3 class="text-lg font-bold text-white mt-1">Reflection Rewards</h3>
+                    <p class="text-gray-400 text-xs mt-2">Auto-distributed $SOL to all holders on every trade.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-desert p-6 rounded-3xl border-t-8 border-t-jorgeYellow hover:scale-105 transition duration-300 text-center">
+                    <div class="text-5xl mb-3">🪙</div>
+                    <div class="text-2xl font-black text-jorgeYellow">1,000,000,000</div>
+                    <h3 class="text-lg font-bold text-white mt-1">Total Supply</h3>
+                    <p class="text-gray-400 text-xs mt-2">Fixed supply. No extra minting, no hidden inflation.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-desert p-6 rounded-3xl border-t-8 border-t-jorgeRed hover:scale-105 transition duration-300 text-center">
+                    <div class="text-5xl mb-3">🔥</div>
+                    <div class="text-2xl font-black text-jorgeRed">100% Locked</div>
+                    <h3 class="text-lg font-bold text-white mt-1">Liquidity Pool</h3>
+                    <p class="text-gray-400 text-xs mt-2">Liquidity locked permanently on ClashPad.</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="glass-desert p-6 rounded-3xl border-t-8 border-t-btcGold hover:scale-105 transition duration-300 text-center">
+                    <div class="text-5xl mb-3">🌵</div>
+                    <div class="text-2xl font-black text-btcGold">#1 Pioneer</div>
+                    <h3 class="text-lg font-bold text-white mt-1">ClashPad Native</h3>
+                    <p class="text-gray-400 text-xs mt-2">The flagship meme coin that started the ClashPad era.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="roadmap" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- How to Buy -->
+            <div class="mb-20">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <span class="text-xs font-black text-solanaCyan uppercase tracking-widest bg-solanaCyan/10 px-3 py-1 rounded-full border border-solanaCyan/30">EASY STEPS</span>
+                    <h2 class="text-3xl sm:text-4xl font-black text-white mt-2">HOW TO BUY $JORGE 🌵</h2>
+                </div>
+
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="glass-desert p-6 rounded-2xl border-l-4 border-l-solanaCyan">
+                        <div class="text-3xl font-black text-solanaCyan mb-2">01</div>
+                        <h4 class="font-bold text-white mb-1">Get a Solana Wallet</h4>
+                        <p class="text-xs text-gray-400">Download Phantom or Solflare wallet on mobile or browser.</p>
+                    </div>
+
+                    <div class="glass-desert p-6 rounded-2xl border-l-4 border-l-jorgeYellow">
+                        <div class="text-3xl font-black text-jorgeYellow mb-2">02</div>
+                        <h4 class="font-bold text-white mb-1">Buy $SOL</h4>
+                        <p class="text-xs text-gray-400">Load up your wallet with Solana ($SOL) from any exchange.</p>
+                    </div>
+
+                    <div class="glass-desert p-6 rounded-2xl border-l-4 border-l-jorgeRed">
+                        <div class="text-3xl font-black text-jorgeRed mb-2">03</div>
+                        <h4 class="font-bold text-white mb-1">Connect to ClashPad</h4>
+                        <p class="text-xs text-gray-400">Navigate to ClashPad, paste $JORGE contract address, and swap!</p>
+                    </div>
+
+                    <div class="glass-desert p-6 rounded-2xl border-l-4 border-l-btcGold">
+                        <div class="text-3xl font-black text-btcGold mb-2">04</div>
+                        <h4 class="font-bold text-white mb-1">Earn $SOL Dividends</h4>
+                        <p class="text-xs text-gray-400">Sit back and watch automated $SOL reflection rewards drop in!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs font-black text-jorgeYellow uppercase tracking-widest bg-jorgeYellow/10 px-3 py-1 rounded-full border border-jorgeYellow/30">DESERT CONQUEST</span>
+                <h2 class="text-3xl sm:text-5xl font-black text-white mt-3">JORGE'S ROADMAP 🚀</h2>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="glass-desert-glow p-6 rounded-3xl border-2 border-solanaCyan relative">
+                    <span class="text-xs font-black text-solanaCyan uppercase">PHASE 01</span>
+                    <h3 class="text-xl font-black text-white mt-1 mb-3">Pack Bindle 🎒</h3>
+                    <ul class="text-xs text-gray-300 space-y-2">
+                        <li>✅ ClashPad Pioneer Launch</li>
+                        <li>✅ 5% $SOL Reward Engine Active</li>
+                        <li>✅ Telegram & Twitter Army</li>
+                    </ul>
+                </div>
+
+                <div class="glass-desert p-6 rounded-3xl border-2 border-jorgeYellow relative">
+                    <span class="text-xs font-black text-jorgeYellow uppercase">PHASE 02</span>
+                    <h3 class="text-xl font-black text-white mt-1 mb-3">Dune March 🌵</h3>
+                    <ul class="text-xs text-gray-300 space-y-2">
+                        <li>🔥 Trending #1 DexScreener</li>
+                        <li>🔥 10,000+ Holders</li>
+                        <li>🔥 $500,000 $SOL Paid in Rewards</li>
+                    </ul>
+                </div>
+
+                <div class="glass-desert p-6 rounded-3xl border-2 border-jorgeRed relative">
+                    <span class="text-xs font-black text-jorgeRed uppercase">PHASE 03</span>
+                    <h3 class="text-xl font-black text-white mt-1 mb-3">Oasis Oasis 🏜️</h3>
+                    <ul class="text-xs text-gray-300 space-y-2">
+                        <li>⏳ Tier-1 CEX Listings</li>
+                        <li>⏳ Jorge NFT Collection</li>
+                        <li>⏳ ClashPad Staking Yield Boost</li>
+                    </ul>
+                </div>
+
+                <div class="glass-desert p-6 rounded-3xl border-2 border-btcGold relative">
+                    <span class="text-xs font-black text-btcGold uppercase">PHASE 04</span>
+                    <h3 class="text-xl font-black text-white mt-1 mb-3">Moon Fiesta 🌕</h3>
+                    <ul class="text-xs text-gray-300 space-y-2">
+                        <li>🌌 $100M Market Cap</li>
+                        <li>🌌 Global Taco Fest Sponsorship</li>
+                        <li>🌌 Eternal Web3 Legend</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 glass-desert border-t-4 border-solanaCyan">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+            <div class="flex items-center justify-center space-x-3">
+                <span class="text-3xl">⚡</span>
+                <span class="font-black text-3xl bg-gradient-to-r from-solanaCyan via-jorgeYellow to-jorgeRed bg-clip-text text-transparent">
+                    $JORGE TOKEN
+                </span>
+            </div>
+
+            <div class="flex justify-center space-x-6 text-2xl text-gray-300">
+                <a href="https://t.me" target="_blank" onclick="playSound('click')" class="hover:text-solanaCyan transition"><i class="fa-brands fa-telegram"></i></a>
+                <a href="https://twitter.com" target="_blank" onclick="playSound('click')" class="hover:text-jorgeYellow transition"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="https://discord.com" target="_blank" onclick="playSound('click')" class="hover:text-jorgeRed transition"><i class="fa-brands fa-discord"></i></a>
+            </div>
+
+            <p class="text-xs text-gray-400 max-w-lg mx-auto leading-relaxed">
+                $JORGE is a meme coin created for community entertainment on ClashPad with automated $SOL reflections. Always DYOR.
+            </p>
+
+            <div class="text-xs text-gray-500 font-mono">
+                © 2026 $JORGE Token - The #1 Legend of ClashPad.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('heroCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3.5 + 1;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.speedY = (Math.random() - 0.5) * 0.8;
+                this.color = ['#E53935', '#FFC72C', '#00FFA3', '#F7931A', '#E3A857'][Math.floor(Math.random() * 5)];
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 50; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Live Simulated Ticker
+        let baseSolPaid = 3842.5;
+        let baseMcap = 4280000;
+        let baseHolders = 18942;
+        let baseVol = 1425000;
+
+        setInterval(() => {
+            baseSolPaid += Math.random() * 0.4;
+            baseMcap += Math.floor((Math.random() - 0.45) * 1400);
+            baseHolders += Math.random() > 0.6 ? 1 : 0;
+            baseVol += Math.floor(Math.random() * 120);
+
+            document.getElementById('liveSolRewards').innerText = baseSolPaid.toFixed(1) + ' SOL';
+            document.getElementById('liveMarketCap').innerText = '$' + baseMcap.toLocaleString();
+            document.getElementById('liveHolders').innerText = baseHolders.toLocaleString();
+            document.getElementById('liveVolume').innerText = '$' + baseVol.toLocaleString();
+        }, 2000);
+
+        // $SOL Rewards Estimator Calculator Logic
+        function updateSolRewardsCalculator() {
+            const holdings = parseFloat(document.getElementById('calcHoldingsSlider').value);
+            const volumeUsd = parseFloat(document.getElementById('calcVolSlider').value);
+
+            document.getElementById('calcHoldingsText').innerText = holdings.toLocaleString() + ' $JORGE';
+            document.getElementById('calcVolText').innerText = '$' + volumeUsd.toLocaleString() + ' USD';
+
+            const totalSupply = 1000000000; // 1 Billion
+            const sharePercent = (holdings / totalSupply) * 100;
+            document.getElementById('calcSupplyShare').innerText = sharePercent.toFixed(2) + '%';
+
+            const solPrice = 145; // Assumed SOL Price
+            const totalSolTaxDaily = (volumeUsd * 0.05) / solPrice;
+            document.getElementById('calcRewardPool').innerText = totalSolTaxDaily.toFixed(2) + ' SOL / day';
+
+            const userDailySol = (totalSolTaxDaily * (sharePercent / 100));
+            const userMonthlySol = userDailySol * 30;
+
+            document.getElementById('boxDailySol').innerText = userDailySol.toFixed(2) + ' SOL';
+            document.getElementById('boxDailyUsd').innerText = '~\$' + Math.floor(userDailySol * solPrice).toLocaleString() + ' USD';
+
+            document.getElementById('boxMonthlySol').innerText = userMonthlySol.toFixed(2) + ' SOL';
+            document.getElementById('boxMonthlyUsd').innerText = '~\$' + Math.floor(userMonthlySol * solPrice).toLocaleString() + ' USD';
+
+            let tier = '⚡ $SOL DESERT EXPLORER';
+            if (sharePercent >= 1) tier = '👑 EL PATRÓN DE $SOL';
+            else if (sharePercent >= 0.25) tier = '🌮 SUPREME YIELD GENERAL';
+            document.getElementById('rewardTierTitle').innerText = tier;
+        }
+
+        const gameArea = document.getElementById('gameArea');
+        const gamePlayer = document.getElementById('gamePlayer');
+        let gameScore = 0;
+        let gameHighScore = localStorage.getItem('jorgeSolHighScore') || 0;
+        document.getElementById('gameHighScoreText').innerText = gameHighScore + ' PTS';
+
+        let isGameOver = false;
+        let playerX = 50;
+        let fallingItems = [];
+        let gameInterval = null;
+
+        gameArea.addEventListener('mousemove', (e) => {
+            if (isGameOver) return;
+            const rect = gameArea.getBoundingClientRect();
+            let x = ((e.clientX - rect.left) / rect.width) * 100;
+            playerX = Math.max(8, Math.min(92, x));
+            gamePlayer.style.left = playerX + '%';
+        });
+
+        gameArea.addEventListener('touchmove', (e) => {
+            if (isGameOver) return;
+            const rect = gameArea.getBoundingClientRect();
+            let x = ((e.touches[0].clientX - rect.left) / rect.width) * 100;
+            playerX = Math.max(8, Math.min(92, x));
+            gamePlayer.style.left = playerX + '%';
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (isGameOver) return;
+            if (e.key === 'ArrowLeft') {
+                playerX = Math.max(8, playerX - 6);
+                gamePlayer.style.left = playerX + '%';
+            } else if (e.key === 'ArrowRight') {
+                playerX = Math.min(92, playerX + 6);
+                gamePlayer.style.left = playerX + '%';
+            }
+        });
+
+        function spawnFallingItem() {
+            if (isGameOver) return;
+            const types = [
+                { emoji: '⚡', pts: 100, type: 'sol' },
+                { emoji: '₿', pts: 200, type: 'btc' },
+                { emoji: '🌮', pts: 150, type: 'taco' },
+                { emoji: '🐻', pts: 0, type: 'bear' }
+            ];
+            const itemData = types[Math.floor(Math.random() * types.length)];
+            const item = document.createElement('div');
+            item.className = 'absolute text-3xl select-none pointer-events-none transition-all duration-75';
+            item.innerText = itemData.emoji;
+            item.style.left = (Math.random() * 84 + 8) + '%';
+            item.style.top = '0px';
+
+            gameArea.appendChild(item);
+            fallingItems.push({
+                element: item,
+                y: 0,
+                x: parseFloat(item.style.left),
+                data: itemData
+            });
+        }
+
+        function updateGameLoop() {
+            if (isGameOver) return;
+
+            if (Math.random() < 0.09) spawnFallingItem();
+
+            for (let i = fallingItems.length - 1; i >= 0; i--) {
+                let item = fallingItems[i];
+                item.y += 4.5;
+                item.element.style.top = item.y + 'px';
+
+                const gameHeight = gameArea.offsetHeight;
+                if (item.y >= gameHeight - 65 && item.y <= gameHeight - 10) {
+                    if (Math.abs(item.x - playerX) < 12) {
+                        if (item.data.type === 'bear') {
+                            playSound('hit');
+                            endGame();
+                            return;
+                        } else {
+                            playSound('catch');
+                            gameScore += item.data.pts;
+                            document.getElementById('gameScoreText').innerText = gameScore + ' PTS';
+                        }
+                        item.element.remove();
+                        fallingItems.splice(i, 1);
+                        continue;
+                    }
+                }
+
+                if (item.y > gameHeight) {
+                    item.element.remove();
+                    fallingItems.splice(i, 1);
+                }
+            }
+        }
+
+        function resetClashGame() {
+            isGameOver = false;
+            gameScore = 0;
+            document.getElementById('gameScoreText').innerText = '0 PTS';
+            document.getElementById('gameOverModal').classList.add('hidden');
+
+            fallingItems.forEach(item => item.element.remove());
+            fallingItems = [];
+
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(updateGameLoop, 30);
+        }
+
+        function endGame() {
+            isGameOver = true;
+            clearInterval(gameInterval);
+            document.getElementById('finalScoreText').innerText = gameScore;
+            document.getElementById('gameOverModal').classList.remove('hidden');
+
+            if (gameScore > gameHighScore) {
+                gameHighScore = gameScore;
+                localStorage.setItem('jorgeSolHighScore', gameHighScore);
+                document.getElementById('gameHighScoreText').innerText = gameHighScore + ' PTS';
+            }
+        }
+
+        window.onload = function() {
+            resetClashGame();
+            updateSolRewardsCalculator();
+        };
+
+        function triggerHeroConfetti() {
+            if (window.confetti) {
+                confetti({
+                    particleCount: 130,
+                    spread: 100,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
